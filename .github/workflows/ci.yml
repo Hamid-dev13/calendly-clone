@@ -10,27 +10,16 @@ jobs:
   unit-tests:
     name: Unit & Integration Tests
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-
-      - name: Run unit tests
-        run: npm run test:unit -- --reporter=verbose
-
-      - name: Run unit tests with coverage
-        run: npm run test:coverage
-
-      - name: Upload coverage
-        uses: actions/upload-artifact@v4
+      - run: npm ci --legacy-peer-deps
+      - run: npm run test:unit -- --reporter=verbose
+      - run: npm run test:coverage
+      - uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: coverage/
@@ -38,48 +27,44 @@ jobs:
   lint:
     name: Lint & Type Check
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Type check
-        run: npx tsc --noEmit
+      - run: npm ci --legacy-peer-deps
+      - run: npm run lint
+      - run: npx tsc --noEmit
 
   build:
     name: Build
     runs-on: ubuntu-latest
     needs: [unit-tests, lint]
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-
+      - run: npm ci --legacy-peer-deps
+      - name: Generate Prisma client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: "postgresql://test:test@localhost:5432/test"
       - name: Build
         run: npm run build
         env:
           DATABASE_URL: "postgresql://test:test@localhost:5432/test"
           NEXTAUTH_URL: "http://localhost:3000"
           NEXTAUTH_SECRET: "ci-test-secret-32-chars-minimum-ok"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          path: |
+            .next/
+            public/
+            prisma/
 
   functional-tests:
     name: Functional & Smoke Tests
@@ -104,8 +89,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: "npm"
@@ -113,31 +97,42 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
+      - name: Download build
+        uses: actions/download-artifact@v4
+        with:
+          name: next-build
+
       - name: Run Prisma migration
         run: npx prisma migrate deploy
         env:
           DATABASE_URL: "postgresql://calendly:calendly_secret@localhost:5432/calendly_db"
 
-      - name: Start app in background
-        run: npm run start &
+      - name: Start app
+        run: nohup npm run start -- -p 3000 > /tmp/app.log 2>&1 &
         env:
           DATABASE_URL: "postgresql://calendly:calendly_secret@localhost:5432/calendly_db"
           NEXTAUTH_URL: "http://localhost:3000"
           NEXTAUTH_SECRET: "ci-test-secret-32-chars-minimum-ok"
 
-      - name: Wait for app to be ready
+      - name: Wait for app
         run: |
-          for i in $(seq 1 20); do
-            curl -s http://localhost:3000/api/health && break
-            sleep 2
+          for i in $(seq 1 30); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health 2>/dev/null || echo "000")
+            [ "$STATUS" = "200" ] && echo "Ready!" && break
+            echo "attempt $i: HTTP $STATUS" && sleep 3
           done
+          curl -f http://localhost:3000/api/health || { cat /tmp/app.log; exit 1; }
 
-      - name: Run functional tests
+      - name: Functional tests
         run: bash tests/functional/api.sh
         env:
           BASE_URL: "http://localhost:3000"
 
-      - name: Run smoke tests (page render check)
+      - name: Smoke tests
         run: bash tests/smoke/pages.sh
         env:
           BASE_URL: "http://localhost:3000"
+
+      - name: App logs on failure
+        if: failure()
+        run: cat /tmp/app.log || true
