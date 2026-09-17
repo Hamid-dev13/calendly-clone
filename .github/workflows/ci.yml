@@ -136,3 +136,8 @@ jobs:
         run: bash tests/functional/api.sh
         env:
           BASE_URL: "http://localhost:3000"
+
+      - name: Run smoke tests (page render check)
+        run: bash tests/smoke/pages.sh
+        env:
+          BASE_URL: "http://localhost:3000"
