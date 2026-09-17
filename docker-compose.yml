@@ -6,26 +6,45 @@ services:
     container_name: calendly_db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: calendly
-      POSTGRES_PASSWORD: calendly_secret
-      POSTGRES_DB: calendly_db
+      POSTGRES_USER: ${POSTGRES_USER:-calendly}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-calendly_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-calendly_db}
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-calendly} -d ${POSTGRES_DB:-calendly_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: calendly_app
     restart: unless-stopped
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://calendly:calendly_secret@db:5432/calendly_db
-      NEXTAUTH_URL: http://localhost:3000
-      NEXTAUTH_SECRET: change_me_in_production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-calendly}:${POSTGRES_PASSWORD:-calendly_secret}@db:5432/${POSTGRES_DB:-calendly_db}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
     ports:
-      - "3000:3000"
+      - "${APP_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 volumes:
   postgres_data:
+    driver: local
