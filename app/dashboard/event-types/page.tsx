@@ -54,7 +54,7 @@ export default function EventTypesPage() {
   }
 
   async function deleteEventType(id: string) {
-    if (!confirm("Delete this event type?")) return
+    if (!confirm("Supprimer ce type d'événement ?")) return
     await fetch(`/api/event-types/${id}`, { method: "DELETE" })
     await fetchEventTypes()
   }
@@ -65,52 +65,52 @@ export default function EventTypesPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-8 max-w-4xl">
+      <div className="p-4 sm:p-8 max-w-4xl">
         {/* Header */}
-        <div className="flex items-start justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl font-bold" style={{ color: "var(--text)" }}>
-              Event types
+              Types d&apos;événements
             </h1>
             <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
-              Manage the meeting types you offer
+              Gérez les types de réunions que vous proposez
             </p>
           </div>
-          <Button onClick={() => setShowForm(true)} size="md">
+          <Button onClick={() => setShowForm(true)} size="md" className="shrink-0">
             <Plus className="w-4 h-4" />
-            New event type
+            Nouveau type
           </Button>
         </div>
 
         {/* Create modal */}
         {showForm && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
+          <div className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50 px-0 sm:px-4">
             <div
-              className="w-full max-w-md rounded-[14px] p-8"
+              className="w-full sm:max-w-md rounded-t-[20px] sm:rounded-[14px] p-6 sm:p-8"
               style={{ background: "var(--bg)", boxShadow: "var(--shadow-lg)" }}
             >
               <h2 className="text-xl font-bold mb-6" style={{ color: "var(--text)" }}>
-                New event type
+                Nouveau type d&apos;événement
               </h2>
               <form onSubmit={createEventType} className="space-y-4">
                 <Input
-                  label="Title"
+                  label="Titre"
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  placeholder="e.g. 30-min intro call"
+                  placeholder="ex. Appel découverte 30 min"
                   required
                 />
                 <Textarea
-                  label="Description (optional)"
+                  label="Description (optionnel)"
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  placeholder="What's this meeting about?"
+                  placeholder="De quoi s'agit-il ?"
                   rows={3}
                 />
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1">
                     <label className="text-sm font-medium" style={{ color: "#374151" }}>
-                      Duration
+                      Durée
                     </label>
                     <select
                       value={form.duration}
@@ -127,7 +127,7 @@ export default function EventTypesPage() {
                   </div>
                   <div className="flex flex-col gap-1">
                     <label className="text-sm font-medium" style={{ color: "#374151" }}>
-                      Color
+                      Couleur
                     </label>
                     <input
                       type="color"
@@ -145,10 +145,10 @@ export default function EventTypesPage() {
                     className="flex-1"
                     onClick={() => setShowForm(false)}
                   >
-                    Cancel
+                    Annuler
                   </Button>
                   <Button type="submit" loading={loading} className="flex-1">
-                    {loading ? "Creating…" : "Create"}
+                    {loading ? "Création…" : "Créer"}
                   </Button>
                 </div>
               </form>
@@ -167,38 +167,38 @@ export default function EventTypesPage() {
                 <Plus className="w-5 h-5" style={{ color: "var(--text-muted)" }} />
               </div>
               <p className="text-sm font-medium mb-1" style={{ color: "var(--text)" }}>
-                No event types yet
+                Aucun type d&apos;événement
               </p>
               <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                Create your first event type to start accepting bookings.
+                Créez votre premier type pour commencer à accepter des réservations.
               </p>
             </Card>
           )}
 
           {eventTypes.map((et) => (
             <Card key={et.id}>
-              <div className="flex items-center justify-between p-5">
-                <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between p-4 sm:p-5">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                   {/* Color accent */}
                   <div
                     className="w-1 self-stretch rounded-full shrink-0"
                     style={{ background: et.color, minHeight: 48 }}
                   />
                   <div
-                    className="w-11 h-11 rounded-[10px] flex items-center justify-center shrink-0"
+                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-[10px] flex items-center justify-center shrink-0"
                     style={{ background: et.color + "20" }}
                   >
                     <div className="w-4 h-4 rounded-full" style={{ background: et.color }} />
                   </div>
-                  <div>
-                    <h3 className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-semibold truncate" style={{ color: "var(--text)" }}>
                       {et.title}
                     </h3>
                     <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
                       {et.duration} min · /{et.slug}
                     </p>
                     {et.description && (
-                      <p className="text-xs mt-1" style={{ color: "var(--text-secondary)" }}>
+                      <p className="text-xs mt-1 hidden sm:block" style={{ color: "var(--text-secondary)" }}>
                         {et.description}
                       </p>
                     )}
@@ -206,15 +206,15 @@ export default function EventTypesPage() {
                 </div>
 
                 <div className="flex items-center gap-1 shrink-0">
-                  <Badge variant={et.isActive ? "success" : "default"} className="mr-2">
-                    {et.isActive ? "Active" : "Inactive"}
+                  <Badge variant={et.isActive ? "success" : "default"} className="mr-1 sm:mr-2 hidden sm:inline-flex">
+                    {et.isActive ? "Actif" : "Inactif"}
                   </Badge>
 
                   <button
                     onClick={() => copyLink(et.slug)}
                     className="p-2 rounded-[8px] transition-colors"
                     style={{ color: "var(--text-muted)" }}
-                    title="Copy booking link"
+                    title="Copier le lien"
                     onMouseEnter={(e) => {
                       ;(e.currentTarget as HTMLElement).style.background = "var(--bg-muted)"
                       ;(e.currentTarget as HTMLElement).style.color = "var(--text)"
@@ -231,7 +231,7 @@ export default function EventTypesPage() {
                     onClick={() => toggleActive(et.id, et.isActive)}
                     className="p-2 rounded-[8px] transition-colors"
                     style={{ color: et.isActive ? "var(--accent)" : "var(--text-muted)" }}
-                    title={et.isActive ? "Deactivate" : "Activate"}
+                    title={et.isActive ? "Désactiver" : "Activer"}
                     onMouseEnter={(e) => {
                       ;(e.currentTarget as HTMLElement).style.background = "var(--accent-subtle)"
                     }}
@@ -250,7 +250,7 @@ export default function EventTypesPage() {
                     onClick={() => deleteEventType(et.id)}
                     className="p-2 rounded-[8px] transition-colors"
                     style={{ color: "var(--text-muted)" }}
-                    title="Delete"
+                    title="Supprimer"
                     onMouseEnter={(e) => {
                       ;(e.currentTarget as HTMLElement).style.background = "var(--danger-subtle)"
                       ;(e.currentTarget as HTMLElement).style.color = "var(--danger)"

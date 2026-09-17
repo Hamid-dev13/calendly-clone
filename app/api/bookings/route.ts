@@ -17,6 +17,7 @@ const schema = z.object({
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
+    console.log("[POST /api/bookings] body:", JSON.stringify(body))
     const { username, slug, guestName, guestEmail, notes, date, time } = schema.parse(body)
 
     const user = await prisma.user.findUnique({ where: { username } })

@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect } from "react"
 import { format } from "date-fns"
+import { fr } from "date-fns/locale"
 import { X, Calendar, Users } from "lucide-react"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { Card } from "@/components/ui/card"
@@ -18,9 +19,9 @@ type Booking = {
 }
 
 const FILTERS = [
-  { key: "upcoming", label: "Upcoming" },
-  { key: "past", label: "Past" },
-  { key: "cancelled", label: "Cancelled" },
+  { key: "upcoming", label: "À venir" },
+  { key: "past", label: "Passés" },
+  { key: "cancelled", label: "Annulés" },
 ]
 
 export default function BookingsPage() {
@@ -41,7 +42,7 @@ export default function BookingsPage() {
   }
 
   async function cancelBooking(id: string) {
-    if (!confirm("Cancel this booking?")) return
+    if (!confirm("Annuler cette réservation ?")) return
     await fetch("/api/bookings/manage", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -52,14 +53,14 @@ export default function BookingsPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-8 max-w-4xl">
+      <div className="p-4 sm:p-8 max-w-4xl">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold" style={{ color: "var(--text)" }}>
-            Bookings
+            Réservations
           </h1>
           <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
-            Manage your scheduled meetings
+            Gérez vos réunions planifiées
           </p>
         </div>
 
@@ -72,7 +73,7 @@ export default function BookingsPage() {
             <button
               key={key}
               onClick={() => setFilter(key)}
-              className="px-4 py-2 rounded-[8px] text-sm font-medium transition-all"
+              className="px-3 sm:px-4 py-2 rounded-[8px] text-sm font-medium transition-all"
               style={
                 filter === key
                   ? {
@@ -104,21 +105,21 @@ export default function BookingsPage() {
                 style={{ color: "var(--text-muted)" }}
               />
               <p className="text-sm font-medium mb-1" style={{ color: "var(--text)" }}>
-                No bookings
+                Aucune réservation
               </p>
               <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
                 {filter === "upcoming"
-                  ? "No upcoming meetings scheduled."
+                  ? "Aucun RDV à venir."
                   : filter === "past"
-                  ? "No past meetings found."
-                  : "No cancelled meetings."}
+                  ? "Aucun RDV passé."
+                  : "Aucun RDV annulé."}
               </p>
             </Card>
           ) : (
             bookings.map((b) => (
               <Card key={b.id}>
-                <div className="flex items-center justify-between p-5">
-                  <div className="flex items-center gap-4">
+                <div className="flex items-start sm:items-center justify-between p-4 sm:p-5 gap-3">
+                  <div className="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0">
                     {/* Avatar */}
                     <div
                       className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold text-white shrink-0"
@@ -127,8 +128,8 @@ export default function BookingsPage() {
                       {b.guestName?.[0]?.toUpperCase() ?? <Users className="w-4 h-4" />}
                     </div>
 
-                    <div>
-                      <div className="flex items-center gap-2 mb-0.5">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-0.5">
                         <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
                           {b.guestName}
                         </p>
@@ -141,10 +142,10 @@ export default function BookingsPage() {
                               : "default"
                           }
                         >
-                          {b.status === "CONFIRMED" ? "Confirmed" : "Cancelled"}
+                          {b.status === "CONFIRMED" ? "Confirmé" : "Annulé"}
                         </Badge>
                       </div>
-                      <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                      <p className="text-xs hidden sm:block" style={{ color: "var(--text-muted)" }}>
                         {b.guestEmail}
                       </p>
                       <div className="flex items-center gap-1.5 mt-1">
@@ -156,21 +157,17 @@ export default function BookingsPage() {
                           {b.eventType.title}
                         </p>
                       </div>
-                      {b.notes && (
-                        <p
-                          className="text-xs mt-1 italic"
-                          style={{ color: "var(--text-secondary)" }}
-                        >
-                          &ldquo;{b.notes}&rdquo;
-                        </p>
-                      )}
+                      {/* Date visible on mobile below name */}
+                      <p className="text-xs mt-1 sm:hidden font-medium" style={{ color: "var(--text)" }}>
+                        {format(new Date(b.startTime), "d MMM yyyy", { locale: fr })} · {format(new Date(b.startTime), "HH:mm")}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 shrink-0">
-                    <div className="text-right">
+                  <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+                    <div className="text-right hidden sm:block">
                       <p className="text-sm font-medium" style={{ color: "var(--text)" }}>
-                        {format(new Date(b.startTime), "MMM d, yyyy")}
+                        {format(new Date(b.startTime), "d MMM yyyy", { locale: fr })}
                       </p>
                       <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
                         {format(new Date(b.startTime), "HH:mm")} —{" "}
@@ -183,7 +180,7 @@ export default function BookingsPage() {
                         onClick={() => cancelBooking(b.id)}
                         className="p-2 rounded-[8px] transition-colors"
                         style={{ color: "var(--text-muted)" }}
-                        title="Cancel booking"
+                        title="Annuler la réservation"
                         onMouseEnter={(e) => {
                           ;(e.currentTarget as HTMLElement).style.background = "var(--danger-subtle)"
                           ;(e.currentTarget as HTMLElement).style.color = "var(--danger)"

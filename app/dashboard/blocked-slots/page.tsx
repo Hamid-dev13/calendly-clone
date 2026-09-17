@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect } from "react"
 import { format } from "date-fns"
+import { fr } from "date-fns/locale"
 import { Plus, Trash2, BanIcon, AlertCircle } from "lucide-react"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { Card } from "@/components/ui/card"
@@ -48,7 +49,7 @@ export default function BlockedSlotsPage() {
   }
 
   async function deleteSlot(id: string) {
-    if (!confirm("Remove this block?")) return
+    if (!confirm("Supprimer ce créneau bloqué ?")) return
     await fetch("/api/blocked-slots", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -59,37 +60,37 @@ export default function BlockedSlotsPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-8 max-w-3xl">
+      <div className="p-4 sm:p-8 max-w-3xl">
         {/* Header */}
-        <div className="flex items-start justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl font-bold" style={{ color: "var(--text)" }}>
-              Blocked slots
+              Créneaux bloqués
             </h1>
             <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
-              Block specific periods — vacations, internal meetings, etc.
+              Bloquez des périodes — congés, réunions internes, etc.
             </p>
           </div>
-          <Button onClick={() => setShowForm(true)} size="md">
+          <Button onClick={() => setShowForm(true)} size="md" className="shrink-0">
             <Plus className="w-4 h-4" />
-            Block period
+            Bloquer une période
           </Button>
         </div>
 
         {/* Modal */}
         {showForm && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
+          <div className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50 px-0 sm:px-4">
             <div
-              className="w-full max-w-md rounded-[14px] p-8"
+              className="w-full sm:max-w-md rounded-t-[20px] sm:rounded-[14px] p-6 sm:p-8"
               style={{ background: "var(--bg)", boxShadow: "var(--shadow-lg)" }}
             >
               <h2 className="text-xl font-bold mb-6" style={{ color: "var(--text)" }}>
-                Block a period
+                Bloquer une période
               </h2>
               <form onSubmit={createSlot} className="space-y-4">
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-medium" style={{ color: "#374151" }}>
-                    Start
+                    Début
                   </label>
                   <input
                     type="datetime-local"
@@ -102,7 +103,7 @@ export default function BlockedSlotsPage() {
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-medium" style={{ color: "#374151" }}>
-                    End
+                    Fin
                   </label>
                   <input
                     type="datetime-local"
@@ -114,10 +115,10 @@ export default function BlockedSlotsPage() {
                   />
                 </div>
                 <Input
-                  label="Reason (optional)"
+                  label="Motif (optionnel)"
                   value={form.reason}
                   onChange={(e) => setForm({ ...form, reason: e.target.value })}
-                  placeholder="Vacation, internal meeting…"
+                  placeholder="Congés, réunion interne…"
                 />
                 {error && (
                   <div
@@ -135,10 +136,10 @@ export default function BlockedSlotsPage() {
                     className="flex-1"
                     onClick={() => { setShowForm(false); setError("") }}
                   >
-                    Cancel
+                    Annuler
                   </Button>
                   <Button type="submit" variant="danger" className="flex-1">
-                    Block
+                    Bloquer
                   </Button>
                 </div>
               </form>
@@ -155,27 +156,27 @@ export default function BlockedSlotsPage() {
                 style={{ color: "var(--text-muted)" }}
               />
               <p className="text-sm font-medium mb-1" style={{ color: "var(--text)" }}>
-                No blocked periods
+                Aucune période bloquée
               </p>
               <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                Block vacations and internal meetings to prevent bookings.
+                Bloquez vos congés et réunions internes pour éviter les réservations.
               </p>
             </Card>
           ) : (
             slots.map((s) => (
               <Card key={s.id}>
-                <div className="flex items-center justify-between p-5">
-                  <div className="flex items-center gap-4">
+                <div className="flex items-center justify-between p-4 sm:p-5">
+                  <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                     <div
                       className="w-10 h-10 rounded-[10px] flex items-center justify-center shrink-0"
                       style={{ background: "var(--danger-subtle)" }}
                     >
                       <BanIcon className="w-5 h-5" style={{ color: "var(--danger)" }} />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-sm font-medium" style={{ color: "var(--text)" }}>
-                        {format(new Date(s.startTime), "MMM d, yyyy HH:mm")} →{" "}
-                        {format(new Date(s.endTime), "MMM d, yyyy HH:mm")}
+                        {format(new Date(s.startTime), "d MMM yyyy HH:mm", { locale: fr })} →{" "}
+                        {format(new Date(s.endTime), "d MMM yyyy HH:mm", { locale: fr })}
                       </p>
                       {s.reason && (
                         <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>
@@ -184,13 +185,13 @@ export default function BlockedSlotsPage() {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <Badge variant="danger">Blocked</Badge>
+                  <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                    <Badge variant="danger">Bloqué</Badge>
                     <button
                       onClick={() => deleteSlot(s.id)}
                       className="p-2 rounded-[8px] transition-colors"
                       style={{ color: "var(--text-muted)" }}
-                      title="Remove block"
+                      title="Supprimer le blocage"
                       onMouseEnter={(e) => {
                         ;(e.currentTarget as HTMLElement).style.background = "var(--danger-subtle)"
                         ;(e.currentTarget as HTMLElement).style.color = "var(--danger)"

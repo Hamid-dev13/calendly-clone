@@ -5,7 +5,7 @@ import { DashboardLayout } from "@/components/dashboard-layout"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
-const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+const DAYS = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"]
 const TIMES = Array.from({ length: 48 }, (_, i) => {
   const h = Math.floor(i / 2).toString().padStart(2, "0")
   const m = i % 2 === 0 ? "00" : "30"
@@ -74,27 +74,33 @@ export default function AvailabilityPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-8 max-w-2xl">
+      <div className="p-4 sm:p-8 max-w-2xl">
         {/* Header */}
-        <div className="flex items-start justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl font-bold" style={{ color: "var(--text)" }}>
-              Availability
+              Disponibilités
             </h1>
             <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
-              Set your weekly working hours
+              Définissez vos horaires de travail hebdomadaires
             </p>
           </div>
-          <Button onClick={save} loading={saving} variant={saved ? "secondary" : "primary"} size="md">
+          <Button
+            onClick={save}
+            loading={saving}
+            variant={saved ? "secondary" : "primary"}
+            size="md"
+            className="w-full sm:w-auto"
+          >
             {saved ? (
               <>
                 <Check className="w-4 h-4" />
-                Saved!
+                Sauvegardé !
               </>
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                {saving ? "Saving…" : "Save"}
+                {saving ? "Sauvegarde…" : "Sauvegarder"}
               </>
             )}
           </Button>
@@ -103,9 +109,9 @@ export default function AvailabilityPage() {
         <Card>
           <div className="divide-y" style={{ borderColor: "var(--border)" }}>
             {availability.map((day, idx) => (
-              <div key={day.dayOfWeek} className="flex items-center gap-6 px-6 py-4">
-                {/* Toggle + Day name */}
-                <div className="w-36 flex items-center gap-3">
+              <div key={day.dayOfWeek} className="px-4 sm:px-6 py-4">
+                {/* Mobile: toggle + day name on one line */}
+                <div className="flex items-center gap-3 mb-2 sm:mb-0">
                   <button
                     onClick={() => update(idx, { isActive: !day.isActive })}
                     className="relative w-11 h-6 rounded-full transition-colors shrink-0"
@@ -119,46 +125,65 @@ export default function AvailabilityPage() {
                     />
                   </button>
                   <span
-                    className="text-sm font-medium"
+                    className="text-sm font-medium w-28"
                     style={{ color: day.isActive ? "var(--text)" : "var(--text-muted)" }}
                   >
                     {DAYS[day.dayOfWeek]}
                   </span>
+
+                  {/* Time pickers: inline on desktop */}
+                  {day.isActive ? (
+                    <div className="hidden sm:flex items-center gap-3">
+                      <select
+                        value={day.startTime}
+                        onChange={(e) => update(idx, { startTime: e.target.value })}
+                        style={selectStyle}
+                      >
+                        {TIMES.map((t) => (
+                          <option key={t} value={t}>{t}</option>
+                        ))}
+                      </select>
+                      <span className="text-sm" style={{ color: "var(--text-muted)" }}>à</span>
+                      <select
+                        value={day.endTime}
+                        onChange={(e) => update(idx, { endTime: e.target.value })}
+                        style={selectStyle}
+                      >
+                        {TIMES.map((t) => (
+                          <option key={t} value={t}>{t}</option>
+                        ))}
+                      </select>
+                    </div>
+                  ) : (
+                    <span className="text-sm hidden sm:inline" style={{ color: "var(--text-muted)" }}>
+                      Indisponible
+                    </span>
+                  )}
                 </div>
 
-                {/* Time pickers */}
-                {day.isActive ? (
-                  <div className="flex items-center gap-3">
+                {/* Time pickers on mobile: below toggle row */}
+                {day.isActive && (
+                  <div className="flex sm:hidden items-center gap-2 mt-2 pl-14">
                     <select
                       value={day.startTime}
                       onChange={(e) => update(idx, { startTime: e.target.value })}
-                      style={selectStyle}
+                      style={{ ...selectStyle, flex: 1 }}
                     >
                       {TIMES.map((t) => (
-                        <option key={t} value={t}>
-                          {t}
-                        </option>
+                        <option key={t} value={t}>{t}</option>
                       ))}
                     </select>
-                    <span className="text-sm" style={{ color: "var(--text-muted)" }}>
-                      to
-                    </span>
+                    <span className="text-sm" style={{ color: "var(--text-muted)" }}>à</span>
                     <select
                       value={day.endTime}
                       onChange={(e) => update(idx, { endTime: e.target.value })}
-                      style={selectStyle}
+                      style={{ ...selectStyle, flex: 1 }}
                     >
                       {TIMES.map((t) => (
-                        <option key={t} value={t}>
-                          {t}
-                        </option>
+                        <option key={t} value={t}>{t}</option>
                       ))}
                     </select>
                   </div>
-                ) : (
-                  <span className="text-sm" style={{ color: "var(--text-muted)" }}>
-                    Unavailable
-                  </span>
                 )}
               </div>
             ))}

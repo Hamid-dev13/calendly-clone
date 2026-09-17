@@ -31,27 +31,27 @@ export default async function DashboardPage() {
   ])
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id } })
-  const firstName = session.user.name?.split(" ")[0] ?? "there"
+  const firstName = session.user.name?.split(" ")[0] ?? "là"
   const baseUrl = process.env.NEXTAUTH_URL ?? ""
   const bookingUrl = user?.username ? `${baseUrl}/${user.username}` : null
 
   const stats = [
-    { label: "Event types", value: eventTypes.length, icon: Clock },
-    { label: "Upcoming bookings", value: upcomingBookings.length, icon: Calendar },
-    { label: "Active types", value: eventTypes.filter((e) => e.isActive).length, icon: Users },
+    { label: "Types d'événements", value: eventTypes.length, icon: Clock },
+    { label: "Réservations à venir", value: upcomingBookings.length, icon: Calendar },
+    { label: "Types actifs", value: eventTypes.filter((e) => e.isActive).length, icon: Users },
   ]
 
   return (
     <DashboardLayout>
-      <div className="p-8 max-w-5xl">
+      <div className="p-4 sm:p-8 max-w-5xl">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--text)" }}>
-            Good morning, {firstName} 👋
+            Bonjour, {firstName} 👋
           </h1>
           {user?.username && (
             <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
-              Your booking page:{" "}
+              Votre page de réservation :{" "}
               <span className="font-medium" style={{ color: "var(--accent)" }}>
                 /{user.username}
               </span>
@@ -84,10 +84,10 @@ export default async function DashboardPage() {
         {/* Booking link card */}
         {user?.username && bookingUrl && (
           <Card className="mb-6 p-5">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-sm font-medium mb-0.5" style={{ color: "var(--text)" }}>
-                  Your booking link
+                  Votre lien de réservation
                 </p>
                 <p className="text-sm font-mono truncate" style={{ color: "var(--accent)" }}>
                   {bookingUrl}
@@ -101,7 +101,7 @@ export default async function DashboardPage() {
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-sm font-medium"
                   style={{ border: "1px solid var(--border)", color: "var(--text-secondary)" }}
                 >
-                  Preview
+                  Aperçu
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
@@ -116,7 +116,7 @@ export default async function DashboardPage() {
             style={{ borderBottom: "1px solid var(--border)" }}
           >
             <h2 className="font-semibold" style={{ color: "var(--text)" }}>
-              Event types
+              Types d&apos;événements
             </h2>
             <Link
               href="/dashboard/event-types"
@@ -124,16 +124,16 @@ export default async function DashboardPage() {
               style={{ color: "var(--accent)" }}
             >
               <Plus className="w-3.5 h-3.5" />
-              New type
+              Nouveau type
             </Link>
           </div>
           {eventTypes.length === 0 ? (
             <div className="p-12 text-center">
               <Clock className="w-8 h-8 mx-auto mb-3 opacity-30" style={{ color: "var(--text-muted)" }} />
               <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                No event types yet.{" "}
+                Aucun type d&apos;événement.{" "}
                 <Link href="/dashboard/event-types" style={{ color: "var(--accent)" }}>
-                  Create one →
+                  Créer →
                 </Link>
               </p>
             </div>
@@ -156,7 +156,7 @@ export default async function DashboardPage() {
                     </div>
                   </div>
                   <Badge variant={et.isActive ? "success" : "default"}>
-                    {et.isActive ? "Active" : "Inactive"}
+                    {et.isActive ? "Actif" : "Inactif"}
                   </Badge>
                 </div>
               ))}
@@ -171,21 +171,21 @@ export default async function DashboardPage() {
             style={{ borderBottom: "1px solid var(--border)" }}
           >
             <h2 className="font-semibold" style={{ color: "var(--text)" }}>
-              Upcoming bookings
+              Réservations à venir
             </h2>
             <Link
               href="/dashboard/bookings"
               className="text-sm font-medium"
               style={{ color: "var(--accent)" }}
             >
-              View all
+              Voir tout
             </Link>
           </div>
           {upcomingBookings.length === 0 ? (
             <div className="p-12 text-center">
               <Users className="w-8 h-8 mx-auto mb-3 opacity-30" style={{ color: "var(--text-muted)" }} />
               <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                No upcoming bookings
+                Aucune réservation à venir
               </p>
             </div>
           ) : (
@@ -210,13 +210,13 @@ export default async function DashboardPage() {
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-medium" style={{ color: "var(--text)" }}>
-                      {new Date(b.startTime).toLocaleDateString("en-US", {
+                      {new Date(b.startTime).toLocaleDateString("fr-FR", {
                         month: "short",
                         day: "numeric",
                       })}
                     </p>
                     <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
-                      {new Date(b.startTime).toLocaleTimeString("en-US", {
+                      {new Date(b.startTime).toLocaleTimeString("fr-FR", {
                         hour: "2-digit",
                         minute: "2-digit",
                       })}

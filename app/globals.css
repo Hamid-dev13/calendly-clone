@@ -70,6 +70,22 @@ h1, h2, h3, h4, h5, h6 {
 p { color: var(--text-secondary); }
 a { color: inherit; text-decoration: none; }
 
+/* ── Responsive container ─────────────────────── */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+@media (min-width: 640px) { .container { padding: 0 24px; } }
+@media (min-width: 1024px) { .container { padding: 0 32px; } }
+
+/* ── Hide/show utilities ──────────────────────── */
+.hide-mobile { display: none; }
+@media (min-width: 640px) { .hide-mobile { display: block; } }
+.show-mobile { display: block; }
+@media (min-width: 640px) { .show-mobile { display: none; } }
+
 /* ── Keyframes ────────────────────────────────── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(28px); }
@@ -197,5 +213,17 @@ a { color: inherit; text-decoration: none; }
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Mobile responsive overrides ─────────────── */
+@media (max-width: 639px) {
+  .hero-ctas {
+    flex-direction: column !important;
+    width: 100%;
+  }
+  .hero-ctas a {
+    width: 100%;
+    justify-content: center;
   }
 }

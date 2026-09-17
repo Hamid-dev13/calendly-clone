@@ -141,7 +141,7 @@ export default function HomePage() {
           <span className="text-base font-bold" style={{ color: "var(--text)" }}>CalenClone</span>
         </div>
         <nav className="flex items-center gap-2">
-          <Link href="/login" className="px-4 py-2 text-sm font-medium rounded-[10px] link-underline transition-colors"
+          <Link href="/login" className="hidden sm:inline-flex px-4 py-2 text-sm font-medium rounded-[10px] link-underline transition-colors"
             style={{ color: "var(--text-secondary)" }}>
             Connexion
           </Link>
@@ -178,7 +178,7 @@ export default function HomePage() {
           {/* Heading */}
           <h1 className="animate-fade-up mb-6 leading-tight"
             style={{
-              fontSize: "clamp(2.8rem, 6.5vw, 5rem)",
+              fontSize: "clamp(2.2rem, 5vw, 5rem)",
               fontWeight: 800,
               letterSpacing: "-0.03em",
               animationDelay: "0.1s",
@@ -200,16 +200,16 @@ export default function HomePage() {
           </p>
 
           {/* CTAs */}
-          <div className="animate-fade-up flex items-center gap-3 flex-wrap justify-center mb-10"
+          <div className="animate-fade-up flex flex-col sm:flex-row items-center sm:items-center gap-3 flex-wrap justify-center mb-10"
             style={{ animationDelay: "0.24s" }}>
             <Link href="/register"
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-[12px] text-sm font-semibold text-white btn-primary"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-[12px] text-sm font-semibold text-white btn-primary"
               style={{ background: "var(--accent)", fontSize: 15 }}>
               Créer ma page de RDV
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link href="/login"
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-[12px] text-sm font-semibold btn-secondary"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-[12px] text-sm font-semibold btn-secondary"
               style={{ background: "var(--bg)", color: "var(--text)", border: "1px solid var(--border)", fontSize: 15 }}>
               Se connecter
             </Link>
@@ -255,7 +255,7 @@ export default function HomePage() {
             </div>
           </AnimateOnScroll>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {[
               {
                 icon: Clock,
@@ -419,7 +419,7 @@ export default function HomePage() {
           </div>
           <span className="font-semibold" style={{ color: "var(--text-secondary)" }}>CalenClone</span>
         </div>
-        <p>© {new Date().getFullYear()} CalenClone · Scheduling made simple</p>
+        <p>© {new Date().getFullYear()} CalenClone · Planification simplifiée</p>
       </footer>
     </div>
   )

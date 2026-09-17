@@ -59,19 +59,19 @@ export default function RegisterPage() {
           className="text-2xl font-bold text-center mb-1"
           style={{ color: "var(--text)" }}
         >
-          Create your account
+          Créer un compte
         </h1>
         <p className="text-sm text-center mb-8" style={{ color: "var(--text-secondary)" }}>
-          Start scheduling in minutes, for free
+          Planifiez vos RDV en quelques minutes, gratuitement
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="Full name"
+            label="Nom complet"
             type="text"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            placeholder="Jane Smith"
+            placeholder="Jean Dupont"
             required
           />
           <Input
@@ -79,15 +79,15 @@ export default function RegisterPage() {
             type="email"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
-            placeholder="you@example.com"
+            placeholder="vous@exemple.com"
             required
           />
           <Input
-            label="Password"
+            label="Mot de passe"
             type="password"
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
-            placeholder="At least 8 characters"
+            placeholder="Au moins 8 caractères"
             required
           />
 
@@ -102,14 +102,14 @@ export default function RegisterPage() {
           )}
 
           <Button type="submit" loading={loading} className="w-full" size="lg">
-            {loading ? "Creating account…" : "Create account"}
+            {loading ? "Création du compte…" : "Créer un compte"}
           </Button>
         </form>
 
         <p className="text-center text-sm mt-6" style={{ color: "var(--text-secondary)" }}>
-          Already have an account?{" "}
+          Déjà un compte ?{" "}
           <Link href="/login" className="font-medium" style={{ color: "var(--accent)" }}>
-            Sign in
+            Connexion
           </Link>
         </p>
       </div>

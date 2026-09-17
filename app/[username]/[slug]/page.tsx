@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import { format, addDays, startOfDay, isBefore } from "date-fns"
+import { fr } from "date-fns/locale"
 import {
   Clock,
   ChevronLeft,
@@ -29,6 +30,8 @@ type HostInfo = {
   timezone: string
 }
 
+const DAY_LABELS_FR = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"]
+
 export default function BookingPage() {
   const params = useParams()
   const username = params.username as string
@@ -44,6 +47,7 @@ export default function BookingPage() {
   const [step, setStep] = useState<"pick" | "form" | "done">("pick")
   const [loading, setLoading] = useState(false)
   const [loadingSlots, setLoadingSlots] = useState(false)
+  const [bookingError, setBookingError] = useState<string | null>(null)
 
   useEffect(() => {
     fetch(`/api/book/${username}/${slug}`)
@@ -70,19 +74,32 @@ export default function BookingPage() {
     e.preventDefault()
     if (!selectedDate || !selectedSlot) return
     setLoading(true)
-    const res = await fetch("/api/bookings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username,
-        slug,
-        ...form,
-        date: selectedDate.toISOString(),
-        time: selectedSlot,
-      }),
-    })
-    if (res.ok) setStep("done")
-    setLoading(false)
+    setBookingError(null)
+    try {
+      const res = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username,
+          slug,
+          guestName: form.name,
+          guestEmail: form.email,
+          notes: form.notes,
+          date: selectedDate.toISOString(),
+          time: selectedSlot,
+        }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setStep("done")
+      } else {
+        setBookingError(data.error ?? "Une erreur est survenue. Réessayez.")
+      }
+    } catch {
+      setBookingError("Impossible de contacter le serveur. Vérifiez votre connexion.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   const today = startOfDay(new Date())
@@ -112,7 +129,7 @@ export default function BookingPage() {
         style={{ background: "var(--bg-subtle)" }}
       >
         <div
-          className="w-full max-w-md rounded-[14px] p-10 text-center"
+          className="w-full max-w-md rounded-[14px] p-8 sm:p-10 text-center"
           style={{ background: "var(--bg)", boxShadow: "var(--shadow-lg)" }}
         >
           <div
@@ -122,10 +139,10 @@ export default function BookingPage() {
             <Check className="w-8 h-8" style={{ color: "var(--success)" }} />
           </div>
           <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--text)" }}>
-            Booking confirmed!
+            RDV confirmé !
           </h1>
           <p className="text-sm mb-8" style={{ color: "var(--text-secondary)" }}>
-            A confirmation email has been sent to{" "}
+            Un email de confirmation a été envoyé à{" "}
             <strong style={{ color: "var(--text)" }}>{form.email}</strong>
           </p>
 
@@ -134,19 +151,19 @@ export default function BookingPage() {
             style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)" }}
           >
             {[
-              { label: "Event", value: eventType.title },
+              { label: "Événement", value: eventType.title },
               {
                 label: "Date",
                 value: selectedDate
-                  ? format(selectedDate, "EEEE, MMMM d, yyyy")
+                  ? format(selectedDate, "EEEE d MMMM yyyy", { locale: fr })
                   : "",
               },
-              { label: "Time", value: selectedSlot ?? "" },
-              { label: "With", value: host.name },
+              { label: "Heure", value: selectedSlot ?? "" },
+              { label: "Avec", value: host.name },
             ].map(({ label, value }) => (
               <div key={label} className="flex items-start gap-3">
                 <span
-                  className="text-sm min-w-[60px] shrink-0"
+                  className="text-sm min-w-[70px] shrink-0"
                   style={{ color: "var(--text-muted)" }}
                 >
                   {label}
@@ -168,7 +185,7 @@ export default function BookingPage() {
             className="mt-6 text-sm font-medium"
             style={{ color: "var(--accent)" }}
           >
-            Schedule another meeting
+            Planifier un autre RDV
           </button>
         </div>
       </div>
@@ -179,7 +196,7 @@ export default function BookingPage() {
 
   return (
     <div
-      className="min-h-screen py-8 px-4"
+      className="min-h-screen py-4 sm:py-8 px-4"
       style={{ background: "var(--bg-subtle)" }}
     >
       <div
@@ -189,72 +206,71 @@ export default function BookingPage() {
         <div className="flex flex-col md:flex-row">
           {/* Left panel — host + event info */}
           <div
-            className="md:w-72 shrink-0 p-8"
-            style={{ borderRight: "1px solid var(--border)" }}
+            className="md:w-72 shrink-0 p-6 sm:p-8 border-b md:border-b-0 md:border-r"
+            style={{ borderColor: "var(--border)" }}
           >
-            {/* Avatar */}
-            <div
-              className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold text-white mb-4"
-              style={{ background: eventType.color }}
-            >
-              {hostInitial}
-            </div>
-
-            <p className="text-sm mb-1" style={{ color: "var(--text-secondary)" }}>
-              {host.name}
-            </p>
-            <h1 className="text-xl font-bold mb-4" style={{ color: "var(--text)" }}>
-              {eventType.title}
-            </h1>
-
-            <div
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium mb-4"
-              style={{
-                background: eventType.color + "18",
-                color: eventType.color,
-              }}
-            >
-              <Clock className="w-3.5 h-3.5" />
-              {eventType.duration} minutes
-            </div>
-
-            {eventType.description && (
-              <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                {eventType.description}
-              </p>
-            )}
-
-            {/* Step indicator on mobile/sm */}
-            {step === "form" && (
+              {/* Avatar */}
               <div
-                className="mt-6 p-4 rounded-[10px] hidden md:block"
-                style={{ background: "var(--accent-subtle)" }}
+                className="w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-lg sm:text-xl font-bold text-white mb-4"
+                style={{ background: eventType.color }}
               >
-                <p className="text-xs font-semibold mb-1" style={{ color: "var(--accent-text)" }}>
-                  Your selected time
-                </p>
-                <p className="text-sm font-medium" style={{ color: "var(--text)" }}>
-                  {selectedDate && format(selectedDate, "MMMM d, yyyy")}
-                </p>
-                <p className="text-sm" style={{ color: "var(--accent-text)" }}>
-                  at {selectedSlot}
-                </p>
+                {hostInitial}
               </div>
-            )}
-          </div>
+
+              <p className="text-sm mb-1" style={{ color: "var(--text-secondary)" }}>
+                {host.name}
+              </p>
+              <h1 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4" style={{ color: "var(--text)" }}>
+                {eventType.title}
+              </h1>
+
+              <div
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium mb-4"
+                style={{
+                  background: eventType.color + "18",
+                  color: eventType.color,
+                }}
+              >
+                <Clock className="w-3.5 h-3.5" />
+                {eventType.duration} min
+              </div>
+
+              {eventType.description && (
+                <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                  {eventType.description}
+                </p>
+              )}
+
+              {step === "form" && (
+                <div
+                  className="mt-6 p-4 rounded-[10px] hidden md:block"
+                  style={{ background: "var(--accent-subtle)" }}
+                >
+                  <p className="text-xs font-semibold mb-1" style={{ color: "var(--accent-text)" }}>
+                    Créneau sélectionné
+                  </p>
+                  <p className="text-sm font-medium" style={{ color: "var(--text)" }}>
+                    {selectedDate && format(selectedDate, "d MMMM yyyy", { locale: fr })}
+                  </p>
+                  <p className="text-sm" style={{ color: "var(--accent-text)" }}>
+                    à {selectedSlot}
+                  </p>
+                </div>
+              )}
+            </div>
 
           {/* Right panel — calendar or form */}
-          <div className="flex-1 p-8">
+          <div className="flex-1 p-4 sm:p-8">
             {/* STEP: pick */}
             {step === "pick" && (
               <>
                 <div className="flex items-center justify-between mb-6">
                   <div>
                     <h2 className="font-semibold" style={{ color: "var(--text)" }}>
-                      Select a date
+                      Choisir une date
                     </h2>
-                    <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
-                      {format(weekStart, "MMMM yyyy")}
+                    <p className="text-sm mt-0.5 capitalize" style={{ color: "var(--text-muted)" }}>
+                      {format(weekStart, "MMMM yyyy", { locale: fr })}
                     </p>
                   </div>
                   <div className="flex gap-1">
@@ -289,7 +305,7 @@ export default function BookingPage() {
                 </div>
 
                 {/* Week grid */}
-                <div className="grid grid-cols-7 gap-2 mb-8">
+                <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-6 sm:mb-8">
                   {weekDays.map((day) => {
                     const isPast = isBefore(day, today)
                     const isSelected = selectedDate?.toDateString() === day.toDateString()
@@ -301,7 +317,7 @@ export default function BookingPage() {
                           setSelectedDate(day)
                           setSelectedSlot(null)
                         }}
-                        className="flex flex-col items-center py-3 rounded-[10px] text-sm transition-all"
+                        className="flex flex-col items-center py-2 sm:py-3 rounded-[8px] sm:rounded-[10px] text-sm transition-all"
                         style={
                           isSelected
                             ? {
@@ -328,9 +344,9 @@ export default function BookingPage() {
                             color: isSelected ? "#ffffff" : "var(--text-muted)",
                           }}
                         >
-                          {format(day, "EEE")}
+                          {DAY_LABELS_FR[day.getDay()]}
                         </span>
-                        <span className="font-semibold">{format(day, "d")}</span>
+                        <span className="font-semibold text-sm">{format(day, "d")}</span>
                       </button>
                     )
                   })}
@@ -340,10 +356,10 @@ export default function BookingPage() {
                 {selectedDate && (
                   <>
                     <h2 className="font-semibold mb-1" style={{ color: "var(--text)" }}>
-                      Available times
+                      Créneaux disponibles
                     </h2>
-                    <p className="text-sm mb-4" style={{ color: "var(--text-secondary)" }}>
-                      {format(selectedDate, "EEEE, MMMM d")}
+                    <p className="text-sm mb-4 capitalize" style={{ color: "var(--text-secondary)" }}>
+                      {format(selectedDate, "EEEE d MMMM", { locale: fr })}
                     </p>
 
                     {loadingSlots ? (
@@ -352,7 +368,7 @@ export default function BookingPage() {
                           className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin"
                           style={{ borderColor: "var(--accent)" }}
                         />
-                        <span className="text-sm">Loading times…</span>
+                        <span className="text-sm">Chargement...</span>
                       </div>
                     ) : slots.length === 0 ? (
                       <div
@@ -364,7 +380,7 @@ export default function BookingPage() {
                           style={{ color: "var(--text-muted)" }}
                         />
                         <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                          No available times on this day
+                          Aucun créneau disponible ce jour
                         </p>
                       </div>
                     ) : (
@@ -420,7 +436,7 @@ export default function BookingPage() {
                   }
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  Back
+                  Retour
                 </button>
 
                 {/* Selected time summary on mobile */}
@@ -430,8 +446,8 @@ export default function BookingPage() {
                 >
                   <Clock className="w-4 h-4 shrink-0" style={{ color: "var(--accent)" }} />
                   <div>
-                    <p className="text-sm font-medium" style={{ color: "var(--text)" }}>
-                      {selectedDate && format(selectedDate, "MMMM d, yyyy")} at {selectedSlot}
+                    <p className="text-sm font-medium capitalize" style={{ color: "var(--text)" }}>
+                      {selectedDate && format(selectedDate, "d MMMM yyyy", { locale: fr })} à {selectedSlot}
                     </p>
                     <p className="text-xs" style={{ color: "var(--accent-text)" }}>
                       {eventType.duration} min · {eventType.title}
@@ -440,10 +456,10 @@ export default function BookingPage() {
                 </div>
 
                 <h2 className="font-semibold mb-1" style={{ color: "var(--text)" }}>
-                  Enter your details
+                  Vos coordonnées
                 </h2>
                 <p className="text-sm mb-6" style={{ color: "var(--text-secondary)" }}>
-                  We&apos;ll send a confirmation to your email.
+                  Un email de confirmation vous sera envoyé.
                 </p>
 
                 <form onSubmit={confirmBooking} className="space-y-4">
@@ -456,7 +472,7 @@ export default function BookingPage() {
                       type="text"
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      placeholder="Full name"
+                      placeholder="Votre nom"
                       required
                       className="w-full pl-9 pr-3 py-2 text-sm border rounded-[10px] outline-none"
                       style={{
@@ -474,7 +490,7 @@ export default function BookingPage() {
                       type="email"
                       value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      placeholder="Email address"
+                      placeholder="Votre email"
                       required
                       className="w-full pl-9 pr-3 py-2 text-sm border rounded-[10px] outline-none"
                       style={{
@@ -491,7 +507,7 @@ export default function BookingPage() {
                     <textarea
                       value={form.notes}
                       onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                      placeholder="Notes or context (optional)"
+                      placeholder="Notes (optionnel)"
                       rows={3}
                       className="w-full pl-9 pr-3 py-2 text-sm border rounded-[10px] outline-none resize-none"
                       style={{
@@ -501,8 +517,21 @@ export default function BookingPage() {
                     />
                   </div>
 
+                  {bookingError && (
+                    <div style={{
+                      padding: "12px 16px",
+                      borderRadius: "var(--radius-sm)",
+                      background: "var(--danger-subtle)",
+                      border: "1px solid rgba(220,38,38,0.2)",
+                      color: "var(--danger-text)",
+                      fontSize: 14,
+                    }}>
+                      ⚠️ {bookingError}
+                    </div>
+                  )}
+
                   <Button type="submit" loading={loading} className="w-full" size="lg">
-                    {loading ? "Confirming…" : "Confirm booking"}
+                    {loading ? "Confirmation…" : "Confirmer le RDV"}
                   </Button>
                 </form>
               </>
