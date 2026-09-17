@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { sendConfirmationEmail } from "@/lib/email"
 import { addMinutes } from "date-fns"
 import { z } from "zod"
 
@@ -55,6 +56,18 @@ export async function POST(req: NextRequest) {
         status: "CONFIRMED",
       },
     })
+
+    // Envoyer l'email de confirmation (silencieux si RESEND_API_KEY absent)
+    sendConfirmationEmail({
+      guestName:  guestName,
+      guestEmail: guestEmail,
+      hostName:   user.name ?? "Hôte",
+      hostEmail:  user.email ?? undefined,
+      eventTitle: eventType.title,
+      startTime,
+      endTime,
+      duration:   eventType.duration,
+    }).catch(() => {}) // non-bloquant
 
     return NextResponse.json({ booking, eventType, host: { name: user.name, email: user.email } }, { status: 201 })
   } catch (err: any) {

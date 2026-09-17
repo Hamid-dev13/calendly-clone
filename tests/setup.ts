@@ -23,6 +23,6 @@ vi.mock("@/lib/prisma", () => ({
     eventType: { findMany: vi.fn(), findFirst: vi.fn(), create: vi.fn(), update: vi.fn(), updateMany: vi.fn(), deleteMany: vi.fn() },
     availability: { findMany: vi.fn(), findFirst: vi.fn(), createMany: vi.fn(), deleteMany: vi.fn() },
     booking: { findMany: vi.fn(), findFirst: vi.fn(), create: vi.fn(), updateMany: vi.fn() },
-    blockedSlot: { findMany: vi.fn() },
+    blockedSlot: { findMany: vi.fn(), create: vi.fn(), deleteMany: vi.fn() },
   },
 }))
