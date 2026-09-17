@@ -146,23 +146,26 @@ export default function HomePage() {
             Connexion
           </Link>
           <Link href="/register"
-            className="px-4 py-2 text-sm font-semibold rounded-[10px] text-white btn-primary"
-            style={{ background: "var(--accent)" }}>
+              className="px-4 py-2 text-sm font-semibold rounded-[10px] btn-primary"
+              style={{ background: "var(--accent)", color: "#ffffff" }}>
             Commencer gratuitement
           </Link>
         </nav>
       </header>
 
       {/* ── Hero ────────────────────────────────────── */}
-      <section className="relative flex-1 flex flex-col items-center justify-center text-center px-6 overflow-hidden"
-        style={{ minHeight: "88vh", paddingTop: 80, paddingBottom: 80 }}>
-        {/* Background blobs */}
-        <div className="blob blob-1" style={{ top: -100, left: -200, zIndex: 0 }} />
-        <div className="blob blob-2" style={{ bottom: -80, right: -150, zIndex: 0 }} />
-        {/* Grid dots background */}
-        <div className="grid-dots" style={{
-          position: "absolute", inset: 0, zIndex: 0, opacity: 0.5,
-        }} />
+      <section className="relative hero-grain flex-1 flex flex-col items-center justify-center text-center px-6 overflow-hidden"
+        style={{ minHeight: "88vh", paddingTop: 80, paddingBottom: 80, background: "#fafbff" }}>
+
+        {/* Aurora background */}
+        <div className="hero-aurora">
+          <div className="aurora-orb aurora-orb-1" />
+          <div className="aurora-orb aurora-orb-2" />
+          <div className="aurora-orb aurora-orb-3" />
+        </div>
+
+        {/* Grid dots */}
+        <div className="grid-dots" style={{ position: "absolute", inset: 0, zIndex: 0, opacity: 0.3 }} />
 
         {/* Content */}
         <div className="relative z-10 max-w-5xl mx-auto w-full">
@@ -184,11 +187,7 @@ export default function HomePage() {
               animationDelay: "0.1s",
             }}>
             Planifiez vos RDV{" "}
-            <span style={{
-              background: "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}>
+            <span className="text-shimmer">
               sans friction
             </span>
           </h1>
@@ -203,14 +202,15 @@ export default function HomePage() {
           <div className="animate-fade-up flex flex-col sm:flex-row items-center sm:items-center gap-3 flex-wrap justify-center mb-10"
             style={{ animationDelay: "0.24s" }}>
             <Link href="/register"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-[12px] text-sm font-semibold text-white btn-primary"
-              style={{ background: "var(--accent)", fontSize: 15 }}>
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-[12px] text-sm font-semibold btn-cta-animated"
+              style={{ fontSize: 15, color: "#ffffff" }}>
               Créer ma page de RDV
               <ArrowRight className="w-4 h-4" />
             </Link>
+        {/* Bouton connexion secondaire */}
             <Link href="/login"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-[12px] text-sm font-semibold btn-secondary"
-              style={{ background: "var(--bg)", color: "var(--text)", border: "1px solid var(--border)", fontSize: 15 }}>
+              style={{ background: "white", color: "#1e40af", border: "2px solid #2563eb", fontSize: 15 }}>
               Se connecter
             </Link>
           </div>
@@ -226,8 +226,8 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* Product preview */}
-          <div className="animate-fade-up grid md:grid-cols-2 gap-8 mt-20 items-center"
+          {/* Product preview — masqué sur mobile, visible à partir de md */}
+          <div className="animate-fade-up hidden md:grid md:grid-cols-2 gap-8 mt-20 items-center"
             style={{ animationDelay: "0.4s" }}>
             {/* Calendar SVG */}
             <div className="animate-float flex justify-center" style={{ animationDelay: "0s" }}>
