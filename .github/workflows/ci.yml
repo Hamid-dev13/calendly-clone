@@ -108,7 +108,11 @@ jobs:
           DATABASE_URL: "postgresql://calendly:calendly_secret@localhost:5432/calendly_db"
 
       - name: Start app
-        run: nohup npm run start -- -p 3000 > /tmp/app.log 2>&1 &
+        run: |
+          # Avec output: standalone, on copie les fichiers statiques
+          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/public
+          nohup node .next/standalone/server.js > /tmp/app.log 2>&1 &
         env:
           DATABASE_URL: "postgresql://calendly:calendly_secret@localhost:5432/calendly_db"
           NEXTAUTH_URL: "http://localhost:3000"
