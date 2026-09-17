@@ -2,7 +2,9 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Calendar } from "lucide-react"
+import { Calendar, AlertCircle } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -29,40 +31,86 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white rounded-2xl shadow-sm border p-8 w-full max-w-md">
-        <div className="flex items-center gap-2 font-bold text-xl text-blue-600 mb-8 justify-center">
-          <Calendar className="w-6 h-6" />
-          CalenClone
+    <div
+      className="min-h-screen flex items-center justify-center px-4"
+      style={{ background: "var(--bg-subtle)" }}
+    >
+      <div
+        className="w-full max-w-sm rounded-[14px] p-8"
+        style={{
+          background: "var(--bg)",
+          boxShadow: "var(--shadow-lg)",
+        }}
+      >
+        {/* Logo */}
+        <div className="flex items-center justify-center gap-2 mb-8">
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{ background: "var(--accent)" }}
+          >
+            <Calendar className="w-4 h-4 text-white" />
+          </div>
+          <span className="text-base font-semibold" style={{ color: "var(--text)" }}>
+            CalenClone
+          </span>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">Créer un compte</h1>
+
+        <h1
+          className="text-2xl font-bold text-center mb-1"
+          style={{ color: "var(--text)" }}
+        >
+          Create your account
+        </h1>
+        <p className="text-sm text-center mb-8" style={{ color: "var(--text-secondary)" }}>
+          Start scheduling in minutes, for free
+        </p>
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          {[
-            { label: "Nom complet", key: "name", type: "text", placeholder: "Jean Dupont" },
-            { label: "Email", key: "email", type: "email", placeholder: "vous@exemple.com" },
-            { label: "Mot de passe", key: "password", type: "password", placeholder: "8 caractères minimum" },
-          ].map(({ label, key, type, placeholder }) => (
-            <div key={key}>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-              <input
-                type={type}
-                value={form[key as keyof typeof form]}
-                onChange={e => setForm({ ...form, [key]: e.target.value })}
-                className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder={placeholder}
-                required
-              />
+          <Input
+            label="Full name"
+            type="text"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            placeholder="Jane Smith"
+            required
+          />
+          <Input
+            label="Email"
+            type="email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            placeholder="you@example.com"
+            required
+          />
+          <Input
+            label="Password"
+            type="password"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+            placeholder="At least 8 characters"
+            required
+          />
+
+          {error && (
+            <div
+              className="flex items-center gap-2 px-3 py-2.5 rounded-[8px] text-sm"
+              style={{ background: "var(--danger-subtle)", color: "var(--danger-text)" }}
+            >
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              {error}
             </div>
-          ))}
-          {error && <p className="text-red-600 text-sm">{error}</p>}
-          <button type="submit" disabled={loading}
-            className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50">
-            {loading ? "Création..." : "Créer mon compte"}
-          </button>
+          )}
+
+          <Button type="submit" loading={loading} className="w-full" size="lg">
+            {loading ? "Creating account…" : "Create account"}
+          </Button>
         </form>
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Déjà un compte ?{" "}
-          <Link href="/login" className="text-blue-600 font-medium hover:underline">Se connecter</Link>
+
+        <p className="text-center text-sm mt-6" style={{ color: "var(--text-secondary)" }}>
+          Already have an account?{" "}
+          <Link href="/login" className="font-medium" style={{ color: "var(--accent)" }}>
+            Sign in
+          </Link>
         </p>
       </div>
     </div>

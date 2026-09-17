@@ -6,14 +6,14 @@ import { Providers } from "./providers"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Calendly Clone — Prise de RDV en ligne",
-  description: "Planifiez vos réunions facilement",
+  title: "CalenClone — Online Scheduling",
+  description: "Schedule meetings without the back-and-forth",
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className="h-full">
-      <body className={`${inter.className} min-h-full flex flex-col bg-gray-50`}>
+    <html lang="en" className="h-full">
+      <body className={`${inter.className} min-h-full`}>
         <Providers>{children}</Providers>
       </body>
     </html>

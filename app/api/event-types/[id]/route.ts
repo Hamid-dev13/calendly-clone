@@ -12,26 +12,28 @@ const schema = z.object({
   isActive: z.boolean().optional(),
 })
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
 
+  const { id } = await params
   const body = await req.json()
   const data = schema.parse(body)
 
   const eventType = await prisma.eventType.updateMany({
-    where: { id: params.id, userId: session.user.id },
+    where: { id, userId: session.user.id },
     data,
   })
   return NextResponse.json(eventType)
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
 
+  const { id } = await params
   await prisma.eventType.deleteMany({
-    where: { id: params.id, userId: session.user.id },
+    where: { id, userId: session.user.id },
   })
   return NextResponse.json({ success: true })
 }
