@@ -147,18 +147,20 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 md:hidden"
+          style={{ background: "rgba(0,0,0,0.5)", zIndex: 70 }}
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Mobile Sidebar (slide in) */}
       <aside
-        className="fixed top-0 left-0 h-full w-60 flex flex-col z-50 md:hidden transition-transform duration-300"
+        className="fixed top-0 left-0 h-full w-60 flex flex-col md:hidden transition-transform duration-300"
         style={{
           background: "var(--sidebar-bg)",
           borderRight: "1px solid var(--sidebar-border)",
           transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
+          zIndex: 80,
         }}
       >
         <button
@@ -179,13 +181,15 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
       {/* Mobile top bar */}
       <div
-        className="fixed top-0 left-0 right-0 h-14 flex items-center px-4 gap-3 z-30 md:hidden"
-        style={{ background: "var(--sidebar-bg)", borderBottom: "1px solid var(--sidebar-border)" }}
+        className="fixed top-0 left-0 right-0 h-14 flex items-center px-4 gap-3 md:hidden"
+        style={{ background: "var(--sidebar-bg)", borderBottom: "1px solid var(--sidebar-border)", zIndex: 60 }}
       >
         <button
           onClick={() => setSidebarOpen(true)}
           className="p-2 rounded-[8px]"
-          style={{ color: "var(--sidebar-muted)" }}
+          style={{ color: "var(--sidebar-muted)", cursor: "pointer" }}
+          type="button"
+          aria-label="Ouvrir le menu"
         >
           <Menu className="w-5 h-5" />
         </button>

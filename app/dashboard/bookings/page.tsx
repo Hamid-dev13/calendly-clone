@@ -66,23 +66,36 @@ export default function BookingsPage() {
 
         {/* Tab filter */}
         <div
-          className="flex gap-1 p-1 rounded-[10px] mb-6 w-fit"
-          style={{ background: "var(--bg-muted)" }}
+          className="flex mb-6"
+          style={{
+            background: "var(--bg-muted)",
+            borderRadius: 12,
+            padding: 4,
+            gap: 2,
+          }}
         >
           {FILTERS.map(({ key, label }) => (
             <button
               key={key}
+              type="button"
               onClick={() => setFilter(key)}
-              className="px-3 sm:px-4 py-2 rounded-[8px] text-sm font-medium transition-all"
-              style={
-                filter === key
-                  ? {
-                      background: "var(--bg)",
-                      color: "var(--text)",
-                      boxShadow: "var(--shadow-sm)",
-                    }
-                  : { color: "var(--text-secondary)" }
-              }
+              style={{
+                flex: 1,
+                padding: "12px 8px",
+                borderRadius: 8,
+                fontSize: 14,
+                fontWeight: 500,
+                border: "none",
+                cursor: "pointer",
+                touchAction: "manipulation",
+                userSelect: "none",
+                WebkitTapHighlightColor: "transparent",
+                WebkitUserSelect: "none",
+                background: filter === key ? "var(--bg)" : "transparent",
+                color: filter === key ? "var(--text)" : "var(--text-secondary)",
+                boxShadow: filter === key ? "var(--shadow-sm)" : "none",
+                minHeight: 44,
+              }}
             >
               {label}
             </button>
